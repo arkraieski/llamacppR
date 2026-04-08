@@ -4,4 +4,16 @@
 ^src/Makevars\.win$
 ^README\.Rmd$
 ^\.Rproj\.user$
+^\.rlib$
+^\.rlib/.*
 ^\.github$
+^src/vendor/llama\.cpp/\..*$
+^src/vendor/llama\.cpp/ggml/\..*$
+^src/vendor/llama\.cpp/benches$
+^src/vendor/llama\.cpp/benches/.*
+^src/vendor/llama\.cpp/ggml/src/ggml-cuda$
+^src/vendor/llama\.cpp/ggml/src/ggml-cuda/.*
+^src/vendor/llama\.cpp/ggml/src/ggml-openvino$
+^src/vendor/llama\.cpp/ggml/src/ggml-openvino/.*
+^src/vendor/llama\.cpp/ggml/src/ggml-sycl$
+^src/vendor/llama\.cpp/ggml/src/ggml-sycl/.*
