@@ -41,19 +41,29 @@ cp "$build_dir/ggml/src/libggml-cpu.a" "$lib_dir/ggml/src/libggml-cpu.a"
 if [ "$ggml_blas_flag" = "ON" ] && [ -f "$build_dir/ggml/src/ggml-blas/libggml-blas.a" ]; then
   cp "$build_dir/ggml/src/ggml-blas/libggml-blas.a" "$lib_dir/ggml/src/ggml-blas/libggml-blas.a"
 fi
-cat > src/Makevars <<EOF
+if [ "$ggml_blas_flag" = "ON" ]; then
+  cat > src/Makevars <<'EOF'
 CXX_STD = CXX17
 
 PKG_CPPFLAGS = -Ivendor/llama.cpp/include -Ivendor/llama.cpp/ggml/include
-PKG_LIBS = \\
-    vendor-lib/llama/src/libllama.a \\
-    vendor-lib/llama/ggml/src/libggml.a \\
-    vendor-lib/llama/ggml/src/libggml-base.a \\
-    vendor-lib/llama/ggml/src/libggml-cpu.a
+PKG_LIBS = \
+	vendor-lib/llama/src/libllama.a \
+	vendor-lib/llama/ggml/src/libggml.a \
+	vendor-lib/llama/ggml/src/libggml-base.a \
+	vendor-lib/llama/ggml/src/libggml-cpu.a \
+	vendor-lib/llama/ggml/src/ggml-blas/libggml-blas.a \
+	-framework Accelerate
 EOF
+else
+  cat > src/Makevars <<'EOF'
+CXX_STD = CXX17
 
-if [ "$ggml_blas_flag" = "ON" ]; then
-  printf '    %s \\\n' 'vendor-lib/llama/ggml/src/ggml-blas/libggml-blas.a' >> src/Makevars
-  printf '    %s\n' '-framework Accelerate' >> src/Makevars
+PKG_CPPFLAGS = -Ivendor/llama.cpp/include -Ivendor/llama.cpp/ggml/include
+PKG_LIBS = \
+	vendor-lib/llama/src/libllama.a \
+	vendor-lib/llama/ggml/src/libggml.a \
+	vendor-lib/llama/ggml/src/libggml-base.a \
+	vendor-lib/llama/ggml/src/libggml-cpu.a
+EOF
 fi
 rm -rf "$build_root"
