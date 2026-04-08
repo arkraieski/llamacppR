@@ -5,6 +5,6 @@ PKG_LIBS = \
 	vendor-lib/llama/src/libllama.a \
 	vendor-lib/llama/ggml/src/libggml.a \
 	vendor-lib/llama/ggml/src/libggml-base.a \
-	vendor-lib/llama/ggml/src/libggml-cpu.a \
-	vendor-lib/llama/ggml/src/ggml-blas/libggml-blas.a \
-	-framework Accelerate
+	vendor-lib/llama/ggml/src/libggml-cpu.a
+@GGML_BLAS_LINE@
+@PLATFORM_LIBS_LINE@

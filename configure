@@ -6,10 +6,16 @@ src_dir="src/vendor/llama.cpp"
 build_root=$(mktemp -d "${TMPDIR:-/tmp}/llamacppR-llama-XXXXXX")
 build_dir="${build_root}/llama"
 lib_dir="src/vendor-lib/llama"
+sysname=$(uname -s)
+ggml_blas_flag="OFF"
 
 if ! command -v cmake >/dev/null 2>&1; then
   echo "configure: error: cmake is required to build llamacppR" >&2
   exit 1
+fi
+
+if [ "$sysname" = "Darwin" ]; then
+  ggml_blas_flag="ON"
 fi
 
 mkdir -p "$build_dir"
@@ -22,7 +28,8 @@ cmake -S "$src_dir" -B "$build_dir" \
   -DLLAMA_BUILD_TOOLS=OFF \
   -DLLAMA_BUILD_EXAMPLES=OFF \
   -DLLAMA_BUILD_SERVER=OFF \
-  -DGGML_METAL=OFF
+  -DGGML_METAL=OFF \
+  -DGGML_BLAS="$ggml_blas_flag"
 
 cmake --build "$build_dir" --target llama --parallel 4
 
@@ -30,6 +37,22 @@ cp "$build_dir/src/libllama.a" "$lib_dir/src/libllama.a"
 cp "$build_dir/ggml/src/libggml.a" "$lib_dir/ggml/src/libggml.a"
 cp "$build_dir/ggml/src/libggml-base.a" "$lib_dir/ggml/src/libggml-base.a"
 cp "$build_dir/ggml/src/libggml-cpu.a" "$lib_dir/ggml/src/libggml-cpu.a"
-cp "$build_dir/ggml/src/ggml-blas/libggml-blas.a" "$lib_dir/ggml/src/ggml-blas/libggml-blas.a"
-cp src/Makevars.in src/Makevars
+if [ "$ggml_blas_flag" = "ON" ] && [ -f "$build_dir/ggml/src/ggml-blas/libggml-blas.a" ]; then
+  cp "$build_dir/ggml/src/ggml-blas/libggml-blas.a" "$lib_dir/ggml/src/ggml-blas/libggml-blas.a"
+fi
+cat > src/Makevars <<EOF
+CXX_STD = CXX17
+
+PKG_CPPFLAGS = -Ivendor/llama.cpp/include -Ivendor/llama.cpp/ggml/include
+PKG_LIBS = \\
+\tvendor-lib/llama/src/libllama.a \\
+\tvendor-lib/llama/ggml/src/libggml.a \\
+\tvendor-lib/llama/ggml/src/libggml-base.a \\
+\tvendor-lib/llama/ggml/src/libggml-cpu.a
+EOF
+
+if [ "$ggml_blas_flag" = "ON" ]; then
+  printf '\t%s \\\n' 'vendor-lib/llama/ggml/src/ggml-blas/libggml-blas.a' >> src/Makevars
+  printf '\t%s\n' '-framework Accelerate' >> src/Makevars
+fi
 rm -rf "$build_root"
