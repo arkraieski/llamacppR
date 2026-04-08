@@ -21,6 +21,23 @@ fi
 mkdir -p "$build_dir"
 mkdir -p "$lib_dir/src" "$lib_dir/ggml/src"
 
+resolve_static_lib() {
+  canonical="$1"
+  alternate="$2"
+
+  if [ -f "$canonical" ]; then
+    printf '%s\n' "$canonical"
+    return 0
+  fi
+
+  if [ -f "$alternate" ]; then
+    printf '%s\n' "$alternate"
+    return 0
+  fi
+
+  return 1
+}
+
 cmake -G "$generator" -S "$src_dir" -B "$build_dir" \
   -DBUILD_SHARED_LIBS=OFF \
   -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
@@ -33,22 +50,33 @@ cmake -G "$generator" -S "$src_dir" -B "$build_dir" \
 
 cmake --build "$build_dir" --target llama --parallel 4
 
-for lib in \
-  "$build_dir/src/libllama.a" \
-  "$build_dir/ggml/src/libggml.a" \
-  "$build_dir/ggml/src/libggml-base.a" \
-  "$build_dir/ggml/src/libggml-cpu.a"
-do
-  if [ ! -f "$lib" ]; then
-    echo "configure.win: error: expected static library not found: $lib" >&2
-    find "$build_dir" -maxdepth 4 \( -name '*.a' -o -name '*.lib' \) -print >&2 || true
-    exit 1
-  fi
-done
+llama_lib=$(resolve_static_lib "$build_dir/src/libllama.a" "$build_dir/src/llama.a") || {
+  echo "configure.win: error: expected static library not found: $build_dir/src/libllama.a" >&2
+  find "$build_dir" -maxdepth 4 \( -name '*.a' -o -name '*.lib' \) -print >&2 || true
+  exit 1
+}
 
-cp "$build_dir/src/libllama.a" "$lib_dir/src/libllama.a"
-cp "$build_dir/ggml/src/libggml.a" "$lib_dir/ggml/src/libggml.a"
-cp "$build_dir/ggml/src/libggml-base.a" "$lib_dir/ggml/src/libggml-base.a"
-cp "$build_dir/ggml/src/libggml-cpu.a" "$lib_dir/ggml/src/libggml-cpu.a"
+ggml_lib=$(resolve_static_lib "$build_dir/ggml/src/libggml.a" "$build_dir/ggml/src/ggml.a") || {
+  echo "configure.win: error: expected static library not found: $build_dir/ggml/src/libggml.a" >&2
+  find "$build_dir" -maxdepth 4 \( -name '*.a' -o -name '*.lib' \) -print >&2 || true
+  exit 1
+}
+
+ggml_base_lib=$(resolve_static_lib "$build_dir/ggml/src/libggml-base.a" "$build_dir/ggml/src/ggml-base.a") || {
+  echo "configure.win: error: expected static library not found: $build_dir/ggml/src/libggml-base.a" >&2
+  find "$build_dir" -maxdepth 4 \( -name '*.a' -o -name '*.lib' \) -print >&2 || true
+  exit 1
+}
+
+ggml_cpu_lib=$(resolve_static_lib "$build_dir/ggml/src/libggml-cpu.a" "$build_dir/ggml/src/ggml-cpu.a") || {
+  echo "configure.win: error: expected static library not found: $build_dir/ggml/src/libggml-cpu.a" >&2
+  find "$build_dir" -maxdepth 4 \( -name '*.a' -o -name '*.lib' \) -print >&2 || true
+  exit 1
+}
+
+cp "$llama_lib" "$lib_dir/src/libllama.a"
+cp "$ggml_lib" "$lib_dir/ggml/src/libggml.a"
+cp "$ggml_base_lib" "$lib_dir/ggml/src/libggml-base.a"
+cp "$ggml_cpu_lib" "$lib_dir/ggml/src/libggml-cpu.a"
 cp src/Makevars.win.in src/Makevars.win
 rm -rf "$build_root"
