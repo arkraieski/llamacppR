@@ -23,6 +23,7 @@ mkdir -p "$lib_dir/src" "$lib_dir/ggml/src/ggml-blas"
 
 cmake -S "$src_dir" -B "$build_dir" \
   -DBUILD_SHARED_LIBS=OFF \
+  -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
   -DLLAMA_BUILD_COMMON=OFF \
   -DLLAMA_BUILD_TESTS=OFF \
   -DLLAMA_BUILD_TOOLS=OFF \
