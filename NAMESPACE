@@ -1,0 +1,13 @@
+importFrom(Rcpp, evalCpp)
+useDynLib(llamacppR, .registration = TRUE)
+
+export(chat_llamacpp)
+export(llamacpp_default_model_path)
+export(llamacpp_download_default_model)
+export(llamacpp_is_gguf)
+export(llamacpp_list_models)
+export(llamacpp_model_path)
+export(llamacpp_model_presets)
+export(llamacpp_download_model)
+export(llamacpp_model_info)
+export(llamacpp_unload)

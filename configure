@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -eu
+
+src_dir="src/vendor/llama.cpp"
+build_dir="src/vendor-build/llama"
+cp src/Makevars.in src/Makevars
+
+if ! command -v cmake >/dev/null 2>&1; then
+  echo "configure: error: cmake is required to build llamacppR" >&2
+  exit 1
+fi
+
+mkdir -p "$build_dir"
+
+cmake -S "$src_dir" -B "$build_dir" \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DLLAMA_BUILD_COMMON=OFF \
+  -DLLAMA_BUILD_TESTS=OFF \
+  -DLLAMA_BUILD_TOOLS=OFF \
+  -DLLAMA_BUILD_EXAMPLES=OFF \
+  -DLLAMA_BUILD_SERVER=OFF \
+  -DGGML_METAL=OFF
+
+cmake --build "$build_dir" --target llama --parallel 4

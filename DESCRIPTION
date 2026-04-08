@@ -1,0 +1,29 @@
+Package: llamacppR
+Type: Package
+Title: Ellmer-Native llama.cpp Chats for R
+Version: 0.1.0
+Authors@R:
+    person("Alex", "Kraieski", email = "arkraieski@gmail.com", role = c("aut", "cre"))
+Description: Provides an ellmer-style chat interface backed by native
+    llama.cpp inference. The package vendors llama.cpp, exposes a
+    chat_llamacpp() constructor for local GGUF models, supports token
+    streaming, basic tool-calling loops, and helpers for downloading a
+    curated default model.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: false
+SystemRequirements: CMake, C++17
+Imports:
+    cli,
+    coro,
+    curl,
+    ellmer,
+    jsonlite,
+    Rcpp,
+    R6
+LinkingTo:
+    Rcpp
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+RoxygenNote: 7.3.2

@@ -1,0 +1,7 @@
+^.*\.Rproj$
+^src/vendor-build$
+^src/Makevars$
+^src/Makevars\.win$
+^README\.Rmd$
+^\.Rproj\.user$
+^\.github$

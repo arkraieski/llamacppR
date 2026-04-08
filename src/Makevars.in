@@ -1,0 +1,12 @@
+CXX_STD = CXX17
+
+PKG_CPPFLAGS = -Ivendor/llama.cpp/include -Ivendor/llama.cpp/ggml/include
+PKG_LIBS = \
+	vendor-build/llama/src/libllama.a \
+	vendor-build/llama/ggml/src/libggml.a \
+	vendor-build/llama/ggml/src/libggml-base.a \
+	vendor-build/llama/ggml/src/libggml-cpu.a \
+	vendor-build/llama/ggml/src/ggml-blas/libggml-blas.a \
+	-framework Accelerate
+
+PKG_CXXFLAGS = -fPIC

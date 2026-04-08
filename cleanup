@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rm -rf src/vendor-build
+rm -f src/Makevars
