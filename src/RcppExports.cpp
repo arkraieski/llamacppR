@@ -80,6 +80,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_llamacpp_test_trigger_fatal
+std::string cpp_llamacpp_test_trigger_fatal();
+RcppExport SEXP _llamacppR_cpp_llamacpp_test_trigger_fatal() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(cpp_llamacpp_test_trigger_fatal());
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_llamacppR_cpp_llamacpp_session_create", (DL_FUNC) &_llamacppR_cpp_llamacpp_session_create, 5},
@@ -87,6 +97,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_llamacppR_cpp_llamacpp_session_destroy", (DL_FUNC) &_llamacppR_cpp_llamacpp_session_destroy, 1},
     {"_llamacppR_cpp_llamacpp_apply_chat_template", (DL_FUNC) &_llamacppR_cpp_llamacpp_apply_chat_template, 4},
     {"_llamacppR_cpp_llamacpp_session_generate", (DL_FUNC) &_llamacppR_cpp_llamacpp_session_generate, 9},
+    {"_llamacppR_cpp_llamacpp_test_trigger_fatal", (DL_FUNC) &_llamacppR_cpp_llamacpp_test_trigger_fatal, 0},
     {NULL, NULL, 0}
 };
 

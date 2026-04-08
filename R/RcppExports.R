@@ -21,3 +21,7 @@ cpp_llamacpp_session_generate <- function(ext, prompt, max_tokens, temperature, 
     .Call(`_llamacppR_cpp_llamacpp_session_generate`, ext, prompt, max_tokens, temperature, top_k, top_p, min_p, repeat_penalty, seed)
 }
 
+cpp_llamacpp_test_trigger_fatal <- function() {
+    .Call(`_llamacppR_cpp_llamacpp_test_trigger_fatal`)
+}
+

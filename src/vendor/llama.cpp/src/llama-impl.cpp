@@ -2,6 +2,7 @@
 
 #include "gguf.h"
 #include "llama.h"
+#include "../include/llamacppR_vendor_shim.h"
 
 #include <cinttypes>
 #include <climits>
@@ -60,10 +61,8 @@ void llama_log_internal(ggml_log_level level, const char * format, ...) {
 }
 
 void llama_log_callback_default(ggml_log_level level, const char * text, void * user_data) {
-    (void) level;
     (void) user_data;
-    fputs(text, stderr);
-    fflush(stderr);
+    llamacppR_vendor_log((int) level, text);
 }
 
 void replace_all(std::string & s, const std::string & search, const std::string & replace) {

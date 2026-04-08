@@ -2,12 +2,14 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 #include "llama.h"
+#include "llamacppR_vendor_shim.h"
 
 using namespace Rcpp;
 
@@ -26,13 +28,29 @@ struct session_state {
 bool backend_initialized = false;
 
 void quiet_log_callback(enum ggml_log_level level, const char * text, void * user_data) {
+  (void) user_data;
   if (level >= GGML_LOG_LEVEL_ERROR && text != nullptr) {
     Rcpp::Rcerr << text;
   }
 }
 
+void shim_log_callback(int level, const char * text, void * user_data) {
+  quiet_log_callback(static_cast<enum ggml_log_level>(level), text, user_data);
+}
+
+void shim_fatal_callback(const char * text, void * user_data) {
+  (void) user_data;
+  if (text == nullptr || std::strlen(text) == 0) {
+    Rf_error("llama.cpp fatal error");
+  }
+  Rf_error("%s", text);
+}
+
 void ensure_backend_initialized() {
   if (!backend_initialized) {
+    llamacppR_vendor_set_log_callback(shim_log_callback, nullptr);
+    llamacppR_vendor_set_fatal_callback(shim_fatal_callback, nullptr);
+    llamacppR_vendor_clear_last_fatal_message();
     llama_log_set(quiet_log_callback, nullptr);
     ggml_backend_load_all();
     llama_backend_init();
@@ -326,4 +344,11 @@ Rcpp::List cpp_llamacpp_session_generate(SEXP ext,
     Rcpp::Named("completion_tokens") = static_cast<int>(pieces.size()),
     Rcpp::Named("finish_reason") = stopped_by_eog ? "stop" : "length"
   );
+}
+
+// [[Rcpp::export]]
+std::string cpp_llamacpp_test_trigger_fatal() {
+  ensure_backend_initialized();
+  llamacppR_vendor_fatal("llama.cpp fatal test");
+  return "unreachable";
 }

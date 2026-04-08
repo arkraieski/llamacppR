@@ -3312,10 +3312,7 @@ static void quantize_row_iq2_xxs_impl(const float * GGML_RESTRICT x, void * GGML
                 for (int i = 0; i < 8; ++i) u |= (L[8*k+i] << 2*i);
                 int grid_index = kmap_q2xs[u];
                 if (grid_index < 0) {
-                    printf("Oops: found point %u not on grid:", u);
-                    for (int i = 0; i < 8; ++i) printf(" %d", L[8*k+i]);
-                    printf("\n");
-                    GGML_ABORT("fatal error");
+                    GGML_ABORT("Oops: found point %u not on grid", u);
                 }
                 q2[2*ib+0] |= ((uint32_t) grid_index << 8*k);
                 q2[2*ib+1] |= (block_signs[k] << 7*k);
@@ -3491,10 +3488,7 @@ static void quantize_row_iq2_xs_impl(const float * GGML_RESTRICT x, void * GGML_
                 for (int i = 0; i < 8; ++i) u |= (L[8*k+i] << 2*i);
                 int grid_index = kmap_q2xs[u];
                 if (grid_index < 0) {
-                    printf("Oops: found point %u not on grid:", u);
-                    for (int i = 0; i < 8; ++i) printf(" %d", L[8*k+i]);
-                    printf("\n");
-                    GGML_ABORT("fatal error");
+                    GGML_ABORT("Oops: found point %u not on grid", u);
                 }
                 q2[2*ib+k] = grid_index | (block_signs[k] << 9);
             }
@@ -3935,10 +3929,7 @@ static void quantize_row_iq3_xxs_impl(int grid_size, const float * GGML_RESTRICT
                 for (int i = 0; i < 4; ++i) u |= (L[4*k+i] << 3*i);
                 int grid_index = kmap_q3xs[u];
                 if (grid_index < 0) {
-                    printf("Oops: found point %u not on grid:", u);
-                    for (int i = 0; i < 4; ++i) printf(" %d", L[4*k+i]);
-                    printf("\n");
-                    GGML_ABORT("fatal error");
+                    GGML_ABORT("Oops: found point %u not on grid", u);
                 }
                 if (grid_size == 256) {
                     q3[8*ib+k] = grid_index;
@@ -4143,10 +4134,7 @@ static void quantize_row_iq3_s_impl(int block_size, const float * GGML_RESTRICT 
                 for (int i = 0; i < 4; ++i) u |= (L[4*k+i] << 3*i);
                 int grid_index = kmap_q3xs[u];
                 if (grid_index < 0) {
-                    printf("Oops: found point %u not on grid:", u);
-                    for (int i = 0; i < 4; ++i) printf(" %d", L[4*k+i]);
-                    printf("\n");
-                    GGML_ABORT("fatal error");
+                    GGML_ABORT("Oops: found point %u not on grid", u);
                 }
                 qs[k] = grid_index & 255;
                 qh[(ib*bs4+k)/8] |= ((grid_index >> 8) << ((ib*bs4+k)%8));
@@ -4245,19 +4233,7 @@ static int iq1_find_best_neighbour(const uint16_t * GGML_RESTRICT neighbours, co
         }
     }
     if (grid_index < 0) {
-        printf("Oops, did not find grid point\n");
-        printf("Have %d neighbours\n", num_neighbors);
-        for (int j = 1; j <= num_neighbors; ++j) {
-            const int8_t * pg = (const int8_t *)(grid + neighbours[j]);
-            float sumqx = 0, sumq2 = 0;
-            for (int i = 0; i < 8; ++i) {
-                float q = (pg[i] - 3)/2;
-                float w = weight[i];
-                sumqx += w*q*xval[i];
-                sumq2 += w*q*q;
-            }
-            printf("    neighbour %d: sumqx = %g sumq2 = %g\n", j, (double)sumqx, (double)sumq2);
-        }
+        GGML_ABORT("Oops, did not find grid point");
     }
     GGML_ASSERT(grid_index >= 0);
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -4305,19 +4281,7 @@ static int iq1_find_best_neighbour2(const uint16_t * GGML_RESTRICT neighbours, c
         }
     }
     if (grid_index < 0) {
-        printf("Oops, did not find grid point\n");
-        printf("Have %d neighbours\n", num_neighbors);
-        for (int j = 1; j <= num_neighbors; ++j) {
-            const int8_t * pg = (const int8_t *)(grid + neighbours[j]);
-            float sumqx = 0, sumq2 = 0;
-            for (int i = 0; i < 8; ++i) {
-                float q = xg[(pg[i] - 1)/2];
-                float w = weight[i];
-                sumqx += w*q*xval[i];
-                sumq2 += w*q*q;
-            }
-            printf("    neighbour %d: sumqx = %g sumq2 = %g\n", j, (double)sumqx, (double)sumq2);
-        }
+        GGML_ABORT("Oops, did not find grid point");
     }
     GGML_ASSERT(grid_index >= 0);
     const int8_t * pg = (const int8_t *)(grid + grid_index);
@@ -5105,10 +5069,7 @@ static void quantize_row_iq2_s_impl(const float * GGML_RESTRICT x, void * GGML_R
                 for (int i = 0; i < 8; ++i) u |= (L[8*k+i] << 2*i);
                 int grid_index = kmap_q2xs[u];
                 if (grid_index < 0) {
-                    printf("Oops: found point %u not on grid:", u);
-                    for (int i = 0; i < 8; ++i) printf(" %d", L[8*k+i]);
-                    printf("\n");
-                    GGML_ABORT("fatal error");
+                    GGML_ABORT("Oops: found point %u not on grid", u);
                 }
                 const int i8 = 2*ib + k;
                 y[ibl].qs[i8] = grid_index & 255;
@@ -5157,12 +5118,12 @@ void quantize_row_iq2_s_ref(const float * GGML_RESTRICT x, block_iq2_s * GGML_RE
 
 static bool validate_float(float f, size_t i) {
     if (isinf(f)) {
-        fprintf(stderr, "ggml_validate_row_data: found inf value at block %zu\n", i);
+        GGML_LOG_ERROR("ggml_validate_row_data: found inf value at block %zu\n", i);
         return false;
     }
 
     if (isnan(f)) {
-        fprintf(stderr, "ggml_validate_row_data: found nan value at block %zu\n", i);
+        GGML_LOG_ERROR("ggml_validate_row_data: found nan value at block %zu\n", i);
         return false;
     }
 
@@ -5179,12 +5140,12 @@ static bool isnan_fp16(ggml_fp16_t f) {
 
 static bool validate_fp16(ggml_fp16_t f, size_t i) {
     if (isinf_fp16(f)) {
-        fprintf(stderr, "ggml_validate_row_data: found inf value at block %zu\n", i);
+        GGML_LOG_ERROR("ggml_validate_row_data: found inf value at block %zu\n", i);
         return false;
     }
 
     if (isnan_fp16(f)) {
-        fprintf(stderr, "ggml_validate_row_data: found nan value at block %zu\n", i);
+        GGML_LOG_ERROR("ggml_validate_row_data: found nan value at block %zu\n", i);
         return false;
     }
 
@@ -5193,7 +5154,7 @@ static bool validate_fp16(ggml_fp16_t f, size_t i) {
 
 static bool validate_e_e8m0(uint8_t e, size_t i) {
     if (e == 0xff) {
-        fprintf(stderr, "ggml_validate_row_data: found invalid e value %d at block %zu\n", e, i);
+        GGML_LOG_ERROR("ggml_validate_row_data: found invalid e value %d at block %zu\n", e, i);
         return false;
     }
 
@@ -5236,12 +5197,12 @@ static bool validate_e_e8m0(uint8_t e, size_t i) {
 
 bool ggml_validate_row_data(enum ggml_type type, const void * data, size_t nbytes) {
     if (type < 0 || type >= GGML_TYPE_COUNT) {
-        fprintf(stderr, "%s: invalid type %d\n", __func__, type);
+        GGML_LOG_ERROR("%s: invalid type %d\n", __func__, type);
         return false;
     }
 
     if (nbytes % ggml_type_size(type) != 0) {
-        fprintf(stderr, "%s: invalid size %zu for type %s (type size = %zu)\n", __func__, nbytes, ggml_type_name(type), ggml_type_size(type));
+        GGML_LOG_ERROR("%s: invalid size %zu for type %s (type size = %zu)\n", __func__, nbytes, ggml_type_name(type), ggml_type_size(type));
         return false;
     }
 
@@ -5258,11 +5219,11 @@ bool ggml_validate_row_data(enum ggml_type type, const void * data, size_t nbyte
                     infs += (f[i] & 0x7fff) == 0x7f80;
                 }
                 if (nans) {
-                    fprintf(stderr, "%s: found %d NaNs in row of %zu BF16 values\n", __func__, nans, nb);
+                    GGML_LOG_ERROR("%s: found %d NaNs in row of %zu BF16 values\n", __func__, nans, nb);
                     return false;
                 }
                 if (infs) {
-                    fprintf(stderr, "%s: found %d infinities in row of %zu BF16 values\n", __func__, infs, nb);
+                    GGML_LOG_ERROR("%s: found %d infinities in row of %zu BF16 values\n", __func__, infs, nb);
                     return false;
                 }
             } break;
@@ -5482,7 +5443,7 @@ bool ggml_validate_row_data(enum ggml_type type, const void * data, size_t nbyte
             break;
         default:
             {
-                fprintf(stderr, "%s: invalid type %d\n", __func__, type);
+                GGML_LOG_ERROR("%s: invalid type %d\n", __func__, type);
                 return false;
             }
     }

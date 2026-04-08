@@ -710,7 +710,7 @@ bool llama_grammar_parser::parse(const char * src) {
             }
         }
     } catch (const std::exception & err) {
-        fprintf(stderr, "%s: error parsing grammar: %s\n\n%s\n", __func__, err.what(), src);
+        LLAMA_LOG_ERROR("%s: error parsing grammar: %s\n\n%s\n", __func__, err.what(), src);
         rules.clear();
         return false;
     }
@@ -731,7 +731,7 @@ void llama_grammar_parser::print(FILE * file) {
             // fprintf(file, "\n");
         }
     } catch (const std::exception & err) {
-        fprintf(stderr, "\n%s: error printing grammar: %s\n", __func__, err.what());
+        LLAMA_LOG_ERROR("\n%s: error printing grammar: %s\n", __func__, err.what());
     }
 }
 
@@ -1507,4 +1507,3 @@ void llama_grammar_accept_token(struct llama_grammar & grammar, llama_token toke
         throw std::runtime_error("Unexpected empty grammar stack after accepting piece: " + piece + " (" + std::to_string(token) + ")");
     }
 }
-
