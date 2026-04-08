@@ -46,7 +46,8 @@ cmake -G "$generator" -S "$src_dir" -B "$build_dir" \
   -DLLAMA_BUILD_TOOLS=OFF \
   -DLLAMA_BUILD_EXAMPLES=OFF \
   -DLLAMA_BUILD_SERVER=OFF \
-  -DGGML_BLAS=OFF
+  -DGGML_BLAS=OFF \
+  -DGGML_OPENMP=OFF
 
 cmake --build "$build_dir" --target llama --parallel 4
 
