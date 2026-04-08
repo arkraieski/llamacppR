@@ -45,14 +45,14 @@ CXX_STD = CXX17
 
 PKG_CPPFLAGS = -Ivendor/llama.cpp/include -Ivendor/llama.cpp/ggml/include
 PKG_LIBS = \\
-\tvendor-lib/llama/src/libllama.a \\
-\tvendor-lib/llama/ggml/src/libggml.a \\
-\tvendor-lib/llama/ggml/src/libggml-base.a \\
-\tvendor-lib/llama/ggml/src/libggml-cpu.a
+    vendor-lib/llama/src/libllama.a \\
+    vendor-lib/llama/ggml/src/libggml.a \\
+    vendor-lib/llama/ggml/src/libggml-base.a \\
+    vendor-lib/llama/ggml/src/libggml-cpu.a
 EOF
 
 if [ "$ggml_blas_flag" = "ON" ]; then
-  printf '\t%s \\\n' 'vendor-lib/llama/ggml/src/ggml-blas/libggml-blas.a' >> src/Makevars
-  printf '\t%s\n' '-framework Accelerate' >> src/Makevars
+  printf '    %s \\\n' 'vendor-lib/llama/ggml/src/ggml-blas/libggml-blas.a' >> src/Makevars
+  printf '    %s\n' '-framework Accelerate' >> src/Makevars
 fi
 rm -rf "$build_root"
