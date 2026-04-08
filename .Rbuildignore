@@ -6,7 +6,10 @@
 ^\.Rproj\.user$
 ^\.rlib$
 ^\.rlib/.*
+^llamacppR\.Rcheck$
+^llamacppR_.*\.tar\.gz$
 ^\.github$
+^LICENSE\.md$
 ^src/vendor/llama\.cpp/\..*$
 ^src/vendor/llama\.cpp/ggml/\..*$
 ^src/vendor/llama\.cpp/benches$
@@ -17,3 +20,7 @@
 ^src/vendor/llama\.cpp/ggml/src/ggml-openvino/.*
 ^src/vendor/llama\.cpp/ggml/src/ggml-sycl$
 ^src/vendor/llama\.cpp/ggml/src/ggml-sycl/.*
+^src/vendor/llama\.cpp/ggml/src/ggml-hexagon$
+^src/vendor/llama\.cpp/ggml/src/ggml-hexagon/.*
+^src/vendor/llama\.cpp/ggml/src/ggml-opencl$
+^src/vendor/llama\.cpp/ggml/src/ggml-opencl/.*

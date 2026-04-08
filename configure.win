@@ -3,7 +3,9 @@
 set -eu
 
 src_dir="src/vendor/llama.cpp"
-build_dir="src/vendor-build/llama"
+build_root=$(mktemp -d "${TMPDIR:-/tmp}/llamacppR-llama-XXXXXX")
+build_dir="${build_root}/llama"
+lib_dir="src/vendor-lib/llama"
 
 if ! command -v cmake >/dev/null 2>&1; then
   echo "configure.win: error: cmake is required to build llamacppR on Windows" >&2
@@ -11,6 +13,7 @@ if ! command -v cmake >/dev/null 2>&1; then
 fi
 
 mkdir -p "$build_dir"
+mkdir -p "$lib_dir/src" "$lib_dir/ggml/src"
 
 cmake -S "$src_dir" -B "$build_dir" \
   -DBUILD_SHARED_LIBS=OFF \
@@ -22,3 +25,10 @@ cmake -S "$src_dir" -B "$build_dir" \
   -DGGML_BLAS=OFF
 
 cmake --build "$build_dir" --target llama --parallel 4
+
+cp "$build_dir/src/libllama.a" "$lib_dir/src/libllama.a"
+cp "$build_dir/ggml/src/libggml.a" "$lib_dir/ggml/src/libggml.a"
+cp "$build_dir/ggml/src/libggml-base.a" "$lib_dir/ggml/src/libggml-base.a"
+cp "$build_dir/ggml/src/libggml-cpu.a" "$lib_dir/ggml/src/libggml-cpu.a"
+cp src/Makevars.win.in src/Makevars.win
+rm -rf "$build_root"

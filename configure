@@ -3,8 +3,9 @@
 set -eu
 
 src_dir="src/vendor/llama.cpp"
-build_dir="src/vendor-build/llama"
-cp src/Makevars.in src/Makevars
+build_root=$(mktemp -d "${TMPDIR:-/tmp}/llamacppR-llama-XXXXXX")
+build_dir="${build_root}/llama"
+lib_dir="src/vendor-lib/llama"
 
 if ! command -v cmake >/dev/null 2>&1; then
   echo "configure: error: cmake is required to build llamacppR" >&2
@@ -12,6 +13,7 @@ if ! command -v cmake >/dev/null 2>&1; then
 fi
 
 mkdir -p "$build_dir"
+mkdir -p "$lib_dir/src" "$lib_dir/ggml/src/ggml-blas"
 
 cmake -S "$src_dir" -B "$build_dir" \
   -DBUILD_SHARED_LIBS=OFF \
@@ -23,3 +25,11 @@ cmake -S "$src_dir" -B "$build_dir" \
   -DGGML_METAL=OFF
 
 cmake --build "$build_dir" --target llama --parallel 4
+
+cp "$build_dir/src/libllama.a" "$lib_dir/src/libllama.a"
+cp "$build_dir/ggml/src/libggml.a" "$lib_dir/ggml/src/libggml.a"
+cp "$build_dir/ggml/src/libggml-base.a" "$lib_dir/ggml/src/libggml-base.a"
+cp "$build_dir/ggml/src/libggml-cpu.a" "$lib_dir/ggml/src/libggml-cpu.a"
+cp "$build_dir/ggml/src/ggml-blas/libggml-blas.a" "$lib_dir/ggml/src/ggml-blas/libggml-blas.a"
+cp src/Makevars.in src/Makevars
+rm -rf "$build_root"

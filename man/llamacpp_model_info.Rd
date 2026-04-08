@@ -2,7 +2,13 @@
 \alias{llamacpp_model_info}
 \title{Inspect a GGUF model through llama.cpp}
 \usage{
-llamacpp_model_info(model, n_ctx = 2048L, n_batch = n_ctx, n_threads = 0L, n_gpu_layers = 0L)
+llamacpp_model_info(
+  model,
+  n_ctx = 2048L,
+  n_batch = n_ctx,
+  n_threads = 0L,
+  n_gpu_layers = 0L
+)
 }
 \arguments{
   \item{model}{Path to a GGUF file.}

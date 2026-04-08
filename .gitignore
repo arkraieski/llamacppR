@@ -9,6 +9,7 @@
 /.rlib/
 /vendor-build/
 /src/vendor-build/
+/src/vendor-lib/
 /src/Makevars
 /src/*.o
 /src/*.so
