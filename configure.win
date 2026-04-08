@@ -6,16 +6,22 @@ src_dir="src/vendor/llama.cpp"
 build_root=$(mktemp -d "${TMPDIR:-/tmp}/llamacppR-llama-XXXXXX")
 build_dir="${build_root}/llama"
 lib_dir="src/vendor-lib/llama"
+generator="Unix Makefiles"
 
 if ! command -v cmake >/dev/null 2>&1; then
   echo "configure.win: error: cmake is required to build llamacppR on Windows" >&2
   exit 1
 fi
 
+if [ -n "${R_CUSTOM_TOOLS_SOFT:-}" ] && [ -d "${R_CUSTOM_TOOLS_SOFT}/usr/bin" ]; then
+  PATH="${R_CUSTOM_TOOLS_SOFT}/usr/bin:${PATH}"
+  export PATH
+fi
+
 mkdir -p "$build_dir"
 mkdir -p "$lib_dir/src" "$lib_dir/ggml/src"
 
-cmake -S "$src_dir" -B "$build_dir" \
+cmake -G "$generator" -S "$src_dir" -B "$build_dir" \
   -DBUILD_SHARED_LIBS=OFF \
   -DLLAMA_BUILD_COMMON=OFF \
   -DLLAMA_BUILD_TESTS=OFF \
@@ -25,6 +31,19 @@ cmake -S "$src_dir" -B "$build_dir" \
   -DGGML_BLAS=OFF
 
 cmake --build "$build_dir" --target llama --parallel 4
+
+for lib in \
+  "$build_dir/src/libllama.a" \
+  "$build_dir/ggml/src/libggml.a" \
+  "$build_dir/ggml/src/libggml-base.a" \
+  "$build_dir/ggml/src/libggml-cpu.a"
+do
+  if [ ! -f "$lib" ]; then
+    echo "configure.win: error: expected static library not found: $lib" >&2
+    find "$build_dir" -maxdepth 4 \( -name '*.a' -o -name '*.lib' \) -print >&2 || true
+    exit 1
+  fi
+done
 
 cp "$build_dir/src/libllama.a" "$lib_dir/src/libllama.a"
 cp "$build_dir/ggml/src/libggml.a" "$lib_dir/ggml/src/libggml.a"
