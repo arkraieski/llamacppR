@@ -367,7 +367,17 @@ LlamaCppChat <- R6::R6Class(
     },
 
     append_assistant_text_turn = function(text, tokens) {
-      turn <- .ellmer_ns_get("assistant_turn")(contents = list(ellmer::ContentText(text)))
+      turn <- ellmer::AssistantTurn(
+        contents = list(ellmer::ContentText(text)),
+        json = list(),
+        tokens = c(
+          tokens$prompt_tokens %||% NA_real_,
+          tokens$completion_tokens %||% NA_real_,
+          NA_real_
+        ),
+        cost = NA_real_,
+        duration = NA_real_
+      )
       private$turns <- c(private$turns, list(turn))
       private$token_log <- rbind(
         private$token_log,
@@ -383,7 +393,17 @@ LlamaCppChat <- R6::R6Class(
     },
 
     append_assistant_tool_turn = function(requests, tokens) {
-      turn <- .ellmer_ns_get("assistant_turn")(contents = requests)
+      turn <- ellmer::AssistantTurn(
+        contents = requests,
+        json = list(),
+        tokens = c(
+          tokens$prompt_tokens %||% NA_real_,
+          tokens$completion_tokens %||% NA_real_,
+          NA_real_
+        ),
+        cost = NA_real_,
+        duration = NA_real_
+      )
       private$turns <- c(private$turns, list(turn))
       private$token_log <- rbind(
         private$token_log,
