@@ -298,7 +298,11 @@ Rcpp::List cpp_llamacpp_session_generate(SEXP ext,
 
   std::vector<llama_token> prompt_tokens = tokenize_prompt(session->ctx, prompt);
   if (static_cast<int>(prompt_tokens.size()) >= session->n_ctx) {
-    Rcpp::stop("Prompt is too large for the configured context window.");
+    Rcpp::stop(
+      "Prompt is too large for the configured context window (prompt tokens: %d, n_ctx: %d).",
+      static_cast<int>(prompt_tokens.size()),
+      session->n_ctx
+    );
   }
 
   int rc = llama_decode(
@@ -318,8 +322,12 @@ Rcpp::List cpp_llamacpp_session_generate(SEXP ext,
   std::vector<std::string> pieces;
   std::string text;
   bool stopped_by_eog = false;
+  bool stopped_by_context = false;
+  const int prompt_token_count = static_cast<int>(prompt_tokens.size());
+  const int max_generation_tokens = std::max(0, session->n_ctx - prompt_token_count - 1);
+  const int generation_limit = std::min(max_tokens, max_generation_tokens);
 
-  for (int i = 0; i < max_tokens; ++i) {
+  for (int i = 0; i < generation_limit; ++i) {
     llama_token token = llama_sampler_sample(sampler.get(), session->ctx, -1);
     if (llama_vocab_is_eog(vocab, token)) {
       stopped_by_eog = true;
@@ -333,16 +341,25 @@ Rcpp::List cpp_llamacpp_session_generate(SEXP ext,
     llama_sampler_accept(sampler.get(), token);
     int decode_rc = llama_decode(session->ctx, llama_batch_get_one(&token, 1));
     if (decode_rc != 0) {
-      Rcpp::stop("llama_decode() failed while generating tokens.");
+      Rcpp::stop(
+        "llama_decode() failed while generating tokens (prompt tokens: %d, generated tokens: %d, n_ctx: %d).",
+        prompt_token_count,
+        static_cast<int>(pieces.size()),
+        session->n_ctx
+      );
     }
+  }
+
+  if (!stopped_by_eog && generation_limit < max_tokens) {
+    stopped_by_context = true;
   }
 
   return Rcpp::List::create(
     Rcpp::Named("text") = text,
     Rcpp::Named("pieces") = pieces,
-    Rcpp::Named("prompt_tokens") = static_cast<int>(prompt_tokens.size()),
+    Rcpp::Named("prompt_tokens") = prompt_token_count,
     Rcpp::Named("completion_tokens") = static_cast<int>(pieces.size()),
-    Rcpp::Named("finish_reason") = stopped_by_eog ? "stop" : "length"
+    Rcpp::Named("finish_reason") = stopped_by_eog ? "stop" : (stopped_by_context ? "context_length" : "length")
   );
 }
 

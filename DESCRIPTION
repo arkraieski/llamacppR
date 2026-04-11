@@ -1,7 +1,7 @@
 Package: llamacppR
 Type: Package
 Title: Ellmer-Native llama.cpp Chats for R
-Version: 0.1.1
+Version: 0.1.2
 Authors@R:
     person("Alex", "Kraieski", email = "arkraieski@gmail.com", role = c("aut", "cre"))
 Description: Provides an ellmer-style chat interface backed by native
